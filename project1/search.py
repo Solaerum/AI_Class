@@ -91,41 +91,50 @@ def depthFirstSearch(problem):
     from util import Stack
     start = problem.getStartState()
     #print("start is:",problem.getSuccessors(start))
+    
     if problem.isGoalState(start) == True:
         return []
     else:
         s = Stack()
-        s.push([start,list()]) # push on the start state and empty list
+        s.push([start, list()]) # push on the start state and empty list
         #print("popped state looks like:",s.pop())
         checker = False
         while checker != True:
     
             curr = s.pop() #take off stack
-            pathTillNow = curr[1] #traversal until this point
             currCoordinates = curr[0] #coordinates at node
+            pathTillNow = curr[1] #traversal until this point
             print("currcoordinates are:",currCoordinates)
-            #print("currpathtillnow is :",pathTillNow)
-            #print("path type is:",type(pathTillNow))
+            print("currpathtillnow is :",pathTillNow)
+            print("coordinates type is:", type(currCoordinates[0]))
 
             #print("curr is :",curr)
             if problem.isGoalState(currCoordinates):
+                exit()
                 return pathTillNow #check if curr is right
+                
             else:
                 
                 currList = problem.getSuccessors(currCoordinates)
-                for i in range(0,len(currList)):
+                print("currList is :",currList)
+                for coord,action,cost in currList:
                     #("curr len is:",len(curr))
-                    newPath = pathTillNow.append(currList[i][1])
-                    print("currpathtillnow is :",newPath)
-                    print("path type is:",type(newPath))
-                    print("currList is :",currList[i])
-                    s.push([   currList[i][0], newPath ]) #pushes on new coordinate + path till now and list of how we got there
+
+                    newPath = pathTillNow + list(action)
+                    print(action)
+                    #print("currpathtillnow is :",newPath)
+                    #print("path type is:",type(newPath))
+                    #print("currList is :",currList[i])
+                    s.push([ coord, newPath ]) #pushes on new coordinate + path till now and list of how we got there
+
+            if s.isEmpty == True:
+                checker = True
+                return []
 
             
 
 
 
-    util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
