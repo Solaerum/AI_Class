@@ -70,6 +70,7 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
+    print(w)
     return  [s, s, w, s, w, w, s, w]
 
 def depthFirstSearch(problem):
@@ -91,16 +92,18 @@ def depthFirstSearch(problem):
     from util import Stack
     start = problem.getStartState()
     #print("start is:",problem.getSuccessors(start))
-    
+    visitedNodes = {start}
     if problem.isGoalState(start) == True:
         return []
     else:
         s = Stack()
+        
         s.push([start, list()]) # push on the start state and empty list
+
         #print("popped state looks like:",s.pop())
-        checker = False
-        while checker != True:
     
+        while s.isEmpty != True:
+            #print("popped state looks 106 like:",s.pop())
             curr = s.pop() #take off stack
             currCoordinates = curr[0] #coordinates at node
             pathTillNow = curr[1] #traversal until this point
@@ -110,26 +113,32 @@ def depthFirstSearch(problem):
 
             #print("curr is :",curr)
             if problem.isGoalState(currCoordinates):
-                exit()
+                #exit()
                 return pathTillNow #check if curr is right
                 
             else:
                 
                 currList = problem.getSuccessors(currCoordinates)
                 print("currList is :",currList)
-                for coord,action,cost in currList:
+                for (coord, action, price) in currList:
                     #("curr len is:",len(curr))
 
-                    newPath = pathTillNow + list(action)
-                    print(action)
-                    #print("currpathtillnow is :",newPath)
-                    #print("path type is:",type(newPath))
-                    #print("currList is :",currList[i])
-                    s.push([ coord, newPath ]) #pushes on new coordinate + path till now and list of how we got there
-
-            if s.isEmpty == True:
-                checker = True
-                return []
+                    newPath = [action]
+                    newPath += pathTillNow # used for this syntax https://www.geeksforgeeks.org/python-append-string-to-list/
+                    
+                    print("action is", action)
+                    print("currpathtillnow is :",newPath)
+                    print("path type is:",type(newPath))
+                    print("action type:",type(action))
+                    print("currList is :",currList)
+                    print("coord is:", coord)
+                    print("visited nodes are:",visitedNodes)
+                    print("Is", coord, "in visted nodes:", coord in visitedNodes)
+                
+                    if (coord in visitedNodes) == False:
+                        print("working")
+                        visitedNodes.add(coord)
+                        s.push([ coord, newPath ]) #pushes on new coordinate + path till now and list of how we got there
 
             
 
