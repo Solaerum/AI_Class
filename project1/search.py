@@ -90,8 +90,8 @@ def depthFirstSearch(problem):
     "*** YOUR CODE HERE ***"
     #Bring in legal directions 
     from util import Stack
-    start = problem.getStartState()
-    #print("start is:",problem.getSuccessors(start))
+    start = problem.getStartState() 
+
     visitedNodes = {start}
     if problem.isGoalState(start) == True:
         return []
@@ -100,43 +100,23 @@ def depthFirstSearch(problem):
         
         s.push([start, list()]) # push on the start state and empty list
 
-        #print("popped state looks like:",s.pop())
     
         while s.isEmpty != True:
-            #print("popped state looks 106 like:",s.pop())
             curr = s.pop() #take off stack
             currCoordinates = curr[0] #coordinates at node
             pathTillNow = curr[1] #traversal until this point
-            print("currcoordinates are:",currCoordinates)
-            print("currpathtillnow is :",pathTillNow)
-            print("coordinates type is:", type(currCoordinates[0]))
-
-            #print("curr is :",curr)
             if problem.isGoalState(currCoordinates):
-                #exit()
                 return pathTillNow #check if curr is right
                 
             else:
                 
                 currList = problem.getSuccessors(currCoordinates)
-                print("currList is :",currList)
                 for (coord, action, price) in currList:
-                    #("curr len is:",len(curr))
 
-                    newPath = [action]
-                    newPath += pathTillNow # used for this syntax https://www.geeksforgeeks.org/python-append-string-to-list/
-                    
-                    print("action is", action)
-                    print("currpathtillnow is :",newPath)
-                    print("path type is:",type(newPath))
-                    print("action type:",type(action))
-                    print("currList is :",currList)
-                    print("coord is:", coord)
-                    print("visited nodes are:",visitedNodes)
-                    print("Is", coord, "in visted nodes:", coord in visitedNodes)
-                
+                    newPath = pathTillNow + [action]
+                    # used for this syntax https://www.geeksforgeeks.org/python-append-string-to-list/ CDT Robert Obrien F4 '25 Assistance to the athor, he showed me in class (after showing you) that I had added to the front instead of back. 
+
                     if (coord in visitedNodes) == False:
-                        print("working")
                         visitedNodes.add(coord)
                         s.push([ coord, newPath ]) #pushes on new coordinate + path till now and list of how we got there
 
@@ -144,16 +124,46 @@ def depthFirstSearch(problem):
 
 
 
-
+#Exact same as depth except uses a queue instead of a stack (changed convention naming too)
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+       #Bring in legal directions 
+    from util import Queue
+    start = problem.getStartState() 
+    
+    visitedNodes = {start}
+    if problem.isGoalState(start) == True:
+        return []
+    else:
+        q = Queue()
+        
+        q.push([start, list()]) # push on the start state and empty list
+
+    
+        while q.isEmpty != True:
+            curr = q.pop() #take off stack
+            currCoordinates = curr[0] #coordinates at node
+            pathTillNow = curr[1] #traversal until this point
+            if problem.isGoalState(currCoordinates):
+                return pathTillNow #check if curr is right
+                
+            else:
+                
+                currList = problem.getSuccessors(currCoordinates)
+                for (coord, action, price) in currList:
+
+                    newPath = pathTillNow + [action]
+                    # used for this syntax https://www.geeksforgeeks.org/python-append-string-to-list/ CDT Robert Obrien F4 '25 Assistance to the athor, he showed me in class (after showing you) that I had added to the front instead of back. 
+
+                    if (coord in visitedNodes) == False:
+                        visitedNodes.add(coord)
+                        q.push([ coord, newPath ]) #pushes on new coordinate + path till now and list of how we got there
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
 
 def nullHeuristic(state, problem=None):
     """
