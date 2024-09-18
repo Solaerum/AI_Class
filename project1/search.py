@@ -161,9 +161,26 @@ def breadthFirstSearch(problem):
                         q.push([ coord, newPath ]) #pushes on new coordinate + path till now and list of how we got there
 
 def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
+    """Search the node of least total cost first.
+    Pseudocode 
+    function UNIFORM-COST-SEARCH(problem) returns a solution, or failure
+ if problem's initial state is a goal then return empty path to initial state
+ frontier ← a priority queue ordered by pathCost, with a node for the initial state
+ reached ← a table of {state: the best path that reached state}; initially empty
+ solution ← failure
+ while frontier is not empty and top(frontier) is cheaper than solution do
+   parent ← pop(frontier)
+   for child in successors(parent) dos ← child.state
+     if s is not in reached or child is a cheaper path than reached[s] then
+       reached[s] ← child
+       add child to the frontier
+       if child is a goal and is cheaper than solution then
+         solution = child
+ return solution
+"""
+
     "*** YOUR CODE HERE ***"
-    
+    from util import PriorityQueue
 
 def nullHeuristic(state, problem=None):
     """
@@ -183,3 +200,6 @@ bfs = breadthFirstSearch
 dfs = depthFirstSearch
 astar = aStarSearch
 ucs = uniformCostSearch
+
+four corners --> make list of falses for each of four corners
+[false,false,false,false] use self.corner, when full list is true u have hit all corners
