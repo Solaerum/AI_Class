@@ -15,6 +15,7 @@
 from util import manhattanDistance
 from game import Directions
 import random, util
+import math as m
 
 from game import Agent
 
@@ -22,7 +23,6 @@ class ReflexAgent(Agent):
     """
       A reflex agent chooses an action at each choice point by examining
       its alternatives via a state evaluation function.
-
       The code below is provided as a guide.  You are welcome to change
       it in any way you see fit, so long as you don't touch our method
       headers.
@@ -74,7 +74,37 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        '''
+        print("SuccessorGameState Is: ", successorGameState)
+        print("newPos is: ", newPos)
+        print("NewFood is: ", newFood)
+        print("NewGhostStates is: ", newGhostStates)
+        print("newScaredTime is: ", newScaredTimes)
+        #successorGameState.getScore()
+        '''
+        newFood = list(newFood)
+        return_score = successorGameState.getScore()
+        # Check to see if I will be eaten by ghost on next turn and make -infinite if so
+        for i in newGhostStates:
+            #print(type(i.getPosition()))
+            if manhattanDistance(i.getPosition(),newPos) < 2:
+                return_score = -m.inf
+                break
+        # Check to see closest food
+        closest_food = (0,0)
+        d2ClosestFood = 1
+        for w in range(len(newFood)):
+          for h in range(len(newFood[0])):
+              if (h,w) == True:
+                  if manhattanDistance((h,w),newPos) < d2ClosestFood:
+                      d2ClosestFood = manhattanDistance((h,w),newPos)
+                      closest_food = (h,w)
+              else:
+                  continue
+        
+        return_score += (1 / d2ClosestFood)
+                  
+        return return_score
 
 def scoreEvaluationFunction(currentGameState):
     """
