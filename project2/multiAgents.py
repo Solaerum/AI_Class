@@ -140,7 +140,23 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
       Your minimax agent (question 2)
     """
-
+    import math as m
+    def maxValue(self, gameState, inDepth, agentID): #This is pacman taking a turn
+      if inDepth == self.depth: #Base state for the recursion (stops if the self.depth is arbitrarily met)
+        return self.evaluationFunction(gameState)
+      
+      
+      v = -m.inf
+      actionDecision = None
+      for action in gameState.getLegalActions(agentID):
+        if v < max(v, self.minValue( gameState.generateSuccessor(agentID, action), inDepth + 1, agentID + 1 ) ): #CDT Robert Obrien assisted me by saying that I could use self. to access other functions below
+          actionDecision = action
+          return actionDecision
+        
+      return actionDecision
+    def minValue(self, gameState, inDepth, agentID ): #This is a ghost making a turn
+      return 1
+    
     def getAction(self, gameState):
         """
           Returns the minimax action from the current gameState using self.depth
@@ -159,7 +175,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #print (gameState.getLegalActions(0))
+      
+        
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
