@@ -141,21 +141,49 @@ class MinimaxAgent(MultiAgentSearchAgent):
       Your minimax agent (question 2)
     """
     import math as m
+    
     def maxValue(self, gameState, inDepth, agentID): #This is pacman taking a turn
-      if inDepth == self.depth: #Base state for the recursion (stops if the self.depth is arbitrarily met)
-        return self.evaluationFunction(gameState)
+      if inDepth == self.depth+1: #Base state for the recursion (stops if the self.depth is arbitrarily met)
+        return ("",self.evaluationFunction(gameState))
       
-      
-      v = -m.inf
-      actionDecision = None
-      for action in gameState.getLegalActions(agentID):
-        if v < max(v, self.minValue( gameState.generateSuccessor(agentID, action), inDepth + 1, agentID + 1 ) ): #CDT Robert Obrien assisted me by saying that I could use self. to access other functions below
-          actionDecision = action
-          return actionDecision
+      else:
         
-      return actionDecision
+        v = -m.inf
+        actionDecision = ""
+        for action in gameState.getLegalActions(agentID):
+          
+          tmp = max(v, self.minValue( gameState.generateSuccessor(agentID, action), inDepth +1 , agentID + 1 )[1] ) #CDT Robert Obrien assisted me by saying that I could use self. to access other functions below
+          print("tmp at this call is",tmp)
+          if v < tmp:
+            actionDecision = action
+            v = tmp
+          
+        return (actionDecision, v)
+    
+    
     def minValue(self, gameState, inDepth, agentID ): #This is a ghost making a turn
-      return 1
+      
+      if inDepth == self.depth +1: #Base state for the recursion (stops if the self.depth is arbitrarily met)
+        return ("",self.evaluationFunction(gameState))
+      
+      
+      else:
+        #print(self.evaluationFunction(gameState))
+        v = m.inf
+        actionDecision = ""
+        for action in gameState.getLegalActions(agentID) :
+          tmp = 0
+          if agentID == ( gameState.getNumAgents() ):
+            agentID = 0 #pacman turn
+            v = min(v, self.maxValue( gameState.generateSuccessor(agentID, action), inDepth + 1, agentID  )[1] ) # Going back to pacman and starting a new depth
+          else:
+            agentID += 1 # Move to next ghost
+            tmp = min(v, self.minValue( gameState.generateSuccessor(agentID, action), inDepth, agentID  )[1] ) # Staying at a ghost and moving ALONG the level
+          if v > tmp:
+            actionDecision = action
+            v = tmp
+          
+        return (actionDecision, v)
     
     def getAction(self, gameState):
         """
@@ -176,6 +204,10 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
         #print (gameState.getLegalActions(0))
+        #print("LOOOK RIGHT HERE ASDKOJHASLKJDHASLKJDH\n ASDKJHASKDLJHASLDKJHASLKDH\nasdkjhASDKLJhASDLKJHASDLJKH")
+        #print(self.maxValue(gameState, 0,0))
+        return self.maxValue(gameState, 0,0)[0]
+      
       
         
 
