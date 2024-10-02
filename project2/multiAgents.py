@@ -142,48 +142,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
     import math as m
     
-    def maxValue(self, gameState, inDepth, agentID): #This is pacman taking a turn
-      if inDepth == self.depth+1: #Base state for the recursion (stops if the self.depth is arbitrarily met)
-        return ("",self.evaluationFunction(gameState))
-      
-      else:
-        
-        v = -m.inf
-        actionDecision = ""
-        for action in gameState.getLegalActions(agentID):
-          
-          tmp = max(v, self.minValue( gameState.generateSuccessor(agentID, action), inDepth +1 , agentID + 1 )[1] ) #CDT Robert Obrien assisted me by saying that I could use self. to access other functions below
-          print("tmp at this call is",tmp)
-          if v < tmp:
-            actionDecision = action
-            v = tmp
-          
-        return (actionDecision, v)
-    
-    
-    def minValue(self, gameState, inDepth, agentID ): #This is a ghost making a turn
-      
-      if inDepth == self.depth +1: #Base state for the recursion (stops if the self.depth is arbitrarily met)
-        return ("",self.evaluationFunction(gameState))
-      
-      
-      else:
-        #print(self.evaluationFunction(gameState))
-        v = m.inf
-        actionDecision = ""
-        for action in gameState.getLegalActions(agentID) :
-          tmp = 0
-          if agentID == ( gameState.getNumAgents() ):
-            agentID = 0 #pacman turn
-            v = min(v, self.maxValue( gameState.generateSuccessor(agentID, action), inDepth + 1, agentID  )[1] ) # Going back to pacman and starting a new depth
-          else:
-            agentID += 1 # Move to next ghost
-            tmp = min(v, self.minValue( gameState.generateSuccessor(agentID, action), inDepth, agentID  )[1] ) # Staying at a ghost and moving ALONG the level
-          if v > tmp:
-            actionDecision = action
-            v = tmp
-          
-        return (actionDecision, v)
+
     
     def getAction(self, gameState):
         """
@@ -206,9 +165,59 @@ class MinimaxAgent(MultiAgentSearchAgent):
         #print (gameState.getLegalActions(0))
         #print("LOOOK RIGHT HERE ASDKOJHASLKJDHASLKJDH\n ASDKJHASKDLJHASLDKJHASLKDH\nasdkjhASDKLJhASDLKJHASDLJKH")
         #print(self.maxValue(gameState, 0,0))
-        return self.maxValue(gameState, 0,0)[0]
+        #return self.maxValue(gameState, 0,0)[0]
+
+        def maxValue(gameState, inDepth, agentID): #This is pacman taking a turn
+          #CDT Huchun Walker told me that I need to check the win or lose states as well, I was only checking for the depth being reached
+          if (inDepth == self.depth) or gameState.isWin() or gameState.isLose(): #Base state for the recursion (stops if the self.depth is arbitrarily met)
+            return self.evaluationFunction(gameState)
+          
+          else:
+            
+            v = -m.inf
+            for action in gameState.getLegalActions(agentID):
+              
+              v = max(v, minValue( gameState.generateSuccessor(agentID, action), inDepth, agentID + 1 )) #CDT Robert Obrien assisted me by saying that I could use self. to access other functions below
+              #print("tmp at this call is",tmp)
+              
+            return v
+        
+        
+        def minValue(gameState, inDepth, agentID ): #This is a ghost making a turn
+          
+          if (inDepth == self.depth) or gameState.isWin() or gameState.isLose(): #Base state for the recursion (stops if the self.depth is arbitrarily met)
+            return self.evaluationFunction(gameState)
+          
+          
+          else:
+            #print(self.evaluationFunction(gameState))
+            v = m.inf
+            actionDecision = ""
+            for action in gameState.getLegalActions(agentID) :
+              tmp = 0
+              if agentID == ( gameState.getNumAgents() -1 ):
+                #agentID = 0 #pacman turn
+                v = min(v, maxValue( gameState.generateSuccessor(agentID, action), inDepth + 1, 0  ) ) # Going back to pacman and starting a new depth
+              else:
+                #agentID += 1 # Move to next ghost
+                v = min(v, minValue( gameState.generateSuccessor(agentID, action), inDepth, agentID+1)  ) # Staying at a ghost and moving ALONG the level
+              
+            return v
       
-      
+        retVal = -m.inf
+
+        bestAction = ""
+
+        for action in gameState.getLegalActions(0):
+          nextState = gameState.generateSuccessor(0, action)
+          minChecker = minValue(nextState, 0, 1)
+          if retVal < minChecker:
+            bestAction = action
+            retVal = minChecker
+
+            
+        return bestAction
+
         
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -221,7 +230,65 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # A lot of this is copied directly from the above minimax
+        def maxValue(gameState, inDepth, agentID, alpha, beta): #This is pacman taking a turn
+          #CDT Huchun Walker told me that I need to check the win or lose states as well, I was only checking for the depth being reached
+          if (inDepth +1 == self.depth) or gameState.isWin() or gameState.isLose(): #Base state for the recursion (stops if the self.depth is arbitrarily met)
+            return self.evaluationFunction(gameState)
+          
+          else:
+            
+            v = -m.inf
+            for action in gameState.getLegalActions(agentID):
+              
+              v = max(v, minValue( gameState.generateSuccessor(agentID, action), inDepth+1, agentID + 1, alpha, beta )) #CDT Robert Obrien assisted me by saying that I could use self. to access other functions below
+              if v > beta: return v
+              else: alpha = max(alpha, v)
+            return v
+        
+        
+        def minValue(gameState, inDepth, agentID, alpha, beta ): #This is a ghost making a turn
+          
+          if (inDepth == self.depth) or gameState.isWin() or gameState.isLose(): #Base state for the recursion (stops if the self.depth is arbitrarily met)
+            return self.evaluationFunction(gameState)
+          
+          
+          else:
+            #print(self.evaluationFunction(gameState))
+            v = m.inf
+            for action in gameState.getLegalActions(agentID) :
+              
+              if agentID == ( gameState.getNumAgents() -1 ):
+                #agentID = 0 #pacman turn
+                v = min(v, maxValue( gameState.generateSuccessor(agentID, action), inDepth, 0, alpha, beta  ) ) # Going back to pacman and starting a new depth
+                if v < alpha: return v
+                else: beta = min(beta,v)
+
+              else:
+                #agentID += 1 # Move to next ghost
+                v = min(v, minValue( gameState.generateSuccessor(agentID, action), inDepth, agentID+1, alpha, beta)  ) # Staying at a ghost and moving ALONG the level
+                if v < alpha: return v
+                else: beta = min(beta,v)
+
+            return v
+      
+        retVal = -m.inf
+
+        bestAction = ""
+        alpha = -m.inf 
+        beta = m.inf
+
+        for action in gameState.getLegalActions(0):
+          nextState = gameState.generateSuccessor(0, action)
+          minChecker = minValue(nextState, 0, 1, alpha, beta)
+          if retVal < minChecker:
+            bestAction = action
+            retVal = minChecker
+          if beta < minChecker: return bestAction
+          
+          alpha = max(alpha, retVal)
+            
+        return bestAction
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -236,6 +303,58 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
+        def maxValue(gameState, inDepth, agentID): #This is pacman taking a turn
+          #CDT Huchun Walker told me that I need to check the win or lose states as well, I was only checking for the depth being reached
+          if (inDepth == self.depth) or gameState.isWin() or gameState.isLose(): #Base state for the recursion (stops if the self.depth is arbitrarily met)
+            return self.evaluationFunction(gameState)
+          
+          else:
+            
+            v = -m.inf
+            for action in gameState.getLegalActions(agentID):
+              
+              v = max(v, expectValue( gameState.generateSuccessor(agentID, action), inDepth, agentID + 1 )) #CDT Robert Obrien assisted me by saying that I could use self. to access other functions below
+              #print("tmp at this call is",tmp)
+              
+            return v
+        
+        
+        def expectValue(gameState, inDepth, agentID ): #This is a ghost making a turn
+          
+          if (inDepth == self.depth) or gameState.isWin() or gameState.isLose(): #Base state for the recursion (stops if the self.depth is arbitrarily met)
+            return self.evaluationFunction(gameState)
+          
+          
+          else:
+            #print(self.evaluationFunction(gameState))
+            v = m.inf
+            actionDecision = ""
+            expectSum = 0
+            for action in gameState.getLegalActions(agentID) :
+              tmp = 0
+              if agentID == ( gameState.getNumAgents() -1 ):
+                #agentID = 0 #pacman turn
+                v = maxValue( gameState.generateSuccessor(agentID, action), inDepth + 1, 0  ) # Going back to pacman and starting a new depth
+              else:
+                #agentID += 1 # Move to next ghost
+                v = expectValue( gameState.generateSuccessor(agentID, action), inDepth, agentID+1)  # Staying at a ghost and moving ALONG the level
+              expectSum += v * (1/len(gameState.getLegalActions(agentID)))
+
+            return expectSum
+      
+        retVal = -m.inf
+
+        bestAction = ""
+
+        for action in gameState.getLegalActions(0):
+          nextState = gameState.generateSuccessor(0, action)
+          minChecker = expectValue(nextState, 0, 1)
+          if retVal < minChecker:
+            bestAction = action
+            retVal = minChecker
+
+            
+        return bestAction
         util.raiseNotDefined()
 
 def betterEvaluationFunction(currentGameState):
@@ -246,8 +365,48 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
 
 # Abbreviation
-better = betterEvaluationFunction
+#
 
+
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()      
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+    "*** YOUR CODE HERE ***"
+    '''
+    print("SuccessorGameState Is: ", successorGameState)
+    print("newPos is: ", newPos)
+    print("NewFood is: ", newFood)
+    print("NewGhostStates is: ", newGhostStates)
+    print("newScaredTime is: ", newScaredTimes)
+    #successorGameState.getScore()
+    '''
+    newFood = list(newFood)
+    return_score = currentGameState.getScore()
+    # Check to see if I will be eaten by ghost on next turn and make -infinite if so
+    for i in newGhostStates:
+        #print(type(i.getPosition()))
+        if manhattanDistance(i.getPosition(),newPos) < 2:
+            return_score = -m.inf
+            break
+    # Check to see closest food
+    closest_food = (0,0)
+    d2ClosestFood = 1
+    for w in range(len(newFood)):
+      for h in range(len(newFood[0])):
+          if (h,w) == True:
+              if manhattanDistance((h,w),newPos) < d2ClosestFood:
+                  d2ClosestFood = manhattanDistance((h,w),newPos)
+                  closest_food = (h,w)
+          else:
+              continue
+    
+    return_score += (1 / d2ClosestFood) 
+              
+    return return_score
+
+better = betterEvaluationFunction
